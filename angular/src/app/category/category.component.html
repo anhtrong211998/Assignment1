@@ -79,8 +79,8 @@
 </div>
 
 <!-- Add the modal here -->
-<abp-modal [(visible)]="isModalOpen">
-  <ng-template #abpHeader>
+<abp-modal [(visible)]="isModalOpen" [busy]="inProgress">
+  <ng-template #abpHeader >
     <h3>{{ (selectedItem.id ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h3>
   </ng-template>
 

@@ -35,6 +35,9 @@ export class CategoryComponent implements OnInit {
 
   selectedItems = {} as DeleteMutiCategoryDto;
 
+  loading: string = '';
+  inProgress: boolean;
+
   constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService, 
     private fb: FormBuilder, private confirmation: ConfirmationService,private router: Router) { }
 
@@ -56,9 +59,10 @@ export class CategoryComponent implements OnInit {
   }
 
   createNew() {
+    
     this.selectedItem = {} as CategoryDto; // reset the selected book
-    this.buildForm(); // add this line
-    this.isModalOpen = true;
+      this.buildForm(); // add this line
+      this.isModalOpen = true;
   }
 
   // Add editBook method
@@ -71,12 +75,12 @@ export class CategoryComponent implements OnInit {
   }
   // add buildForm method
   buildForm() {
-
-    this.form = this.fb.group({
-      code: [this.selectedItem.code || '', Validators.required],
-      name: [this.selectedItem.name || null, Validators.required],
-      parentId: [this.selectedItem.parentId]
-    });
+      this.form = this.fb.group({
+        code: [this.selectedItem.code || '', Validators.required],
+        name: [this.selectedItem.name || null, Validators.required],
+        parentId: [this.selectedItem.parentId]
+      });
+    
   }
 
   // add save method
@@ -84,19 +88,24 @@ export class CategoryComponent implements OnInit {
     if (this.form.invalid) {
       return;
     }
-
+    this.inProgress = true;
     if (this.selectedItem.id) {
       this.categoryService
         .update(this.selectedItem.id, this.form.value)
         .subscribe(() => {
+          this.inProgress = false;
           this.isModalOpen = false;
+         
           this.form.reset();
           this.list.get();
           this.getParents();
+
         });
     } else {
       this.categoryService.create(this.form.value).subscribe(() => {
+        this.inProgress = false;
         this.isModalOpen = false;
+        
         this.form.reset();
         this.list.get();
         this.getParents();
