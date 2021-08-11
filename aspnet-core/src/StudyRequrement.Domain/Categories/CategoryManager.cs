@@ -20,7 +20,8 @@ namespace StudyRequrement.Categories
 
         public async Task<Category> CreateAsync(
             [NotNull] string code,
-            [NotNull] string name)
+            [NotNull] string name,
+            [CanBeNull] string parentId = null)
         {
             Check.NotNullOrWhiteSpace(code, nameof(code));
 
@@ -33,7 +34,8 @@ namespace StudyRequrement.Categories
             return new Category(
                 GuidGenerator.Create(),
                 code,
-                name
+                name,
+                parentId
             );
         }
     }

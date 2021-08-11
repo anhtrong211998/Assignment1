@@ -65,6 +65,7 @@
                 "inject": true,
                 "bundleName": "bootstrap-ltr.min"
               },
+              "src/assets/css/styles.css",
               "src/styles.scss"
             ],
             "scripts": []

@@ -1,4 +1,4 @@
-import type { CategoryDto, CreateUpdateCategoryDto, GetCategoryListDto } from './models';
+import type { CategoryDto, CreateUpdateCategoryDto, DeleteMutiCategoryDto, GetCategoryListDto } from './models';
 import { RestService } from '@abp/ng.core';
 import type { PagedResultDto } from '@abp/ng.core';
 import { Injectable } from '@angular/core';
@@ -24,6 +24,14 @@ export class CategoryService {
     },
     { apiName: this.apiName });
 
+  deleteMany = (request: DeleteMutiCategoryDto) =>
+    this.restService.request<any, void>({
+      method: 'DELETE',
+      url: '/api/app/category/many',
+      params: { id: request.id },
+    },
+    { apiName: this.apiName });
+
   get = (id: string) =>
     this.restService.request<any, CategoryDto>({
       method: 'GET',
@@ -35,7 +43,14 @@ export class CategoryService {
     this.restService.request<any, PagedResultDto<CategoryDto>>({
       method: 'GET',
       url: '/api/app/category',
-      params: { filter: input.filter, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+      params: { filter: input.filter, parentId: input.parentId, sorting: input.sorting, skipCount: input.skipCount, maxResultCount: input.maxResultCount },
+    },
+    { apiName: this.apiName });
+
+  getListParent = () =>
+    this.restService.request<any, CategoryDto[]>({
+      method: 'GET',
+      url: '/api/app/category/parent',
     },
     { apiName: this.apiName });
 

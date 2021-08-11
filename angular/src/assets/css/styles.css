@@ -5520,6 +5520,7 @@ textarea.form-control-lg {
 }
 
 .modal-dialog-scrollable {
+  display: block;
   height: calc(100% - 1rem);
 }
 .modal-dialog-scrollable .modal-content {

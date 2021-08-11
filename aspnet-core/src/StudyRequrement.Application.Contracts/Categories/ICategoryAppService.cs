@@ -13,10 +13,14 @@ namespace StudyRequrement.Categories
 
         Task<PagedResultDto<CategoryDto>> GetListAsync(GetCategoryListDto input);
 
+        Task<List<CategoryDto>> GetListParentAsync();
+
         Task<CategoryDto> CreateAsync(CreateUpdateCategoryDto input);
 
         Task UpdateAsync(Guid id, CreateUpdateCategoryDto input);
 
         Task DeleteAsync(Guid id);
+
+        Task DeleteManyAsync(DeleteMutiCategoryDto request);
     }
 }

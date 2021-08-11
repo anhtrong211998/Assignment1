@@ -39,7 +39,8 @@ namespace StudyRequrement.Categories
                 input.SkipCount,
                 input.MaxResultCount,
                 input.Sorting,
-                input.Filter
+                input.Filter,
+                input.ParentId
             );
 
             var totalCount = input.Filter == null
@@ -52,11 +53,18 @@ namespace StudyRequrement.Categories
                 ObjectMapper.Map<List<Category>, List<CategoryDto>>(categories)
             );
         }
+
+        public async Task<List<CategoryDto>> GetListParentAsync()
+        {
+            var categories = await _categoryRepository.GetListParentAsync();
+            return ObjectMapper.Map<List<Category>, List<CategoryDto>>(categories);
+        }
         public async Task<CategoryDto> CreateAsync(CreateUpdateCategoryDto input)
         {
             var category = await _categoryManager.CreateAsync(
                 input.Code,
-                input.Name
+                input.Name,
+                input.ParentId
             );
 
             await _categoryRepository.InsertAsync(category);
@@ -76,6 +84,11 @@ namespace StudyRequrement.Categories
         public async Task DeleteAsync(Guid id)
         {
             await _categoryRepository.DeleteAsync(id);
+        }
+
+        public async Task DeleteManyAsync(DeleteMutiCategoryDto request)
+        {
+            await _categoryRepository.DeleteManyAsync(request.Id);
         }
     }
 }

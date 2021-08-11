@@ -15,5 +15,7 @@ namespace StudyRequrement.Categories
         [StringLength(255)]
         public string Name { get; set; }
 
+        public string ParentId { get; set; }
+
     }
 }

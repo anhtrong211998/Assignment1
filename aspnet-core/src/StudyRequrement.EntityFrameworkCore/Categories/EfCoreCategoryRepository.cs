@@ -30,7 +30,8 @@ namespace StudyRequrement.Categories
             int skipCount,
             int maxResultCount,
             string sorting,
-            string filter = null)
+            string filter = null,
+            string parentId = null)
         {
             var dbSet = await GetDbSetAsync();
             return await dbSet
@@ -38,10 +39,25 @@ namespace StudyRequrement.Categories
                     !filter.IsNullOrWhiteSpace(),
                     c => c.Code.Contains(filter) || c.Name.Contains(filter)
                  )
+                .WhereIf(
+                    !parentId.IsNullOrWhiteSpace(),
+                    c => c.ParentId.Equals(parentId)
+                 )
                 .OrderBy(sorting)
                 .Skip(skipCount)
                 .Take(maxResultCount)
                 .ToListAsync();
+        }
+
+        public async Task<List<Category>> GetListParentAsync()
+        {
+            var dbSet = await GetDbSetAsync();
+            var a = await dbSet
+                .Where(
+                    c => c.ParentId == null
+                 )
+                .ToListAsync();
+            return a;
         }
     }
 }

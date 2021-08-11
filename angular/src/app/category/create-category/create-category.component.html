@@ -1,0 +1,33 @@
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ (selectedItem.id ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h1>
+    <ol class="breadcrumb mb-4">
+      <li class="breadcrumb-item active">Danh mục</li>
+    </ol>
+  
+    <div class="clearfix"></div>
+    <div class="card mb-4">
+      <div class="card-body">
+        <form [formGroup]="form">
+            <div class="form-group">
+              <label for="category-code">Mã danh mục</label><span> * </span>
+              <input type="text" id="category-code" class="form-control" formControlName="code" autofocus />
+            </div>
+        
+            <div class="form-group">
+              <label for="category-name">Tên danh mục</label><span> * </span>
+              <input type="text" id="category-name" class="form-control" formControlName="name" />
+            </div>
+        
+            <button class="btn btn-secondary text-right" (click)="goBackToList()">
+                <i class="fa fa-arrow-left"></i>
+                
+            </button>
+            <!--added save button-->
+        <button class="btn btn-primary text-right" (click)="saveData()" style="float: right;">
+            <i class="fa fa-check mr-1"></i>
+            {{ '::Lưu' | abpLocalization }}
+      </button>
+          </form>
+      </div>
+    </div>
+  </div>

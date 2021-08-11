@@ -8,5 +8,7 @@ namespace StudyRequrement.Categories
     public class GetCategoryListDto : PagedAndSortedResultRequestDto
     {
         public string Filter { get; set; }
+
+        public string ParentId { get; set; }
     }
 }

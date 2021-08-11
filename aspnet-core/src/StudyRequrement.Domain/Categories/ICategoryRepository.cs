@@ -15,7 +15,10 @@ namespace StudyRequrement.Categories
             int skipCount,
             int maxResultCount,
             string sorting,
-            string filter = null
+            string filter = null,
+            string parentId = null
         );
+
+        Task<List<Category>> GetListParentAsync();
     }
 }

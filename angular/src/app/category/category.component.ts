@@ -1,9 +1,11 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
 import { Component, OnInit } from '@angular/core';
-import { CategoryDto, CategoryService, GetCategoryListDto } from '@proxy/categories';
+import { CategoryDto, CategoryService, DeleteMutiCategoryDto, GetCategoryListDto } from '@proxy/categories';
 import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
+import { combineLatest } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-category',
@@ -23,18 +25,33 @@ export class CategoryComponent implements OnInit {
 
   selectedItem = {} as CategoryDto; // declare selectedBook
 
+  parentCategories=[] as CategoryDto[];
+
+  checkedItems = [];
+
   public filter: string = '';
 
-  input= {} as GetCategoryListDto
+  input = {} as GetCategoryListDto;
 
-  constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService,private fb: FormBuilder,private confirmation: ConfirmationService) {}
+  selectedItems = {} as DeleteMutiCategoryDto;
+
+  constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService, 
+    private fb: FormBuilder, private confirmation: ConfirmationService,private router: Router) { }
 
   ngOnInit() {
-    const categroyStreamCreator = (query) => this.categoryService.getList({...query, ...this.input});
-
+    // this.input.maxResultCount = 5;
+    const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
     this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
       this.category = response;
-      console.log(response)
+    });
+    this.getParents();
+  }
+
+  getParents(){
+    this.input.parentId = '';
+    this.categoryService.getListParent().subscribe((response) => {
+      this.parentCategories = response
+      console.log(response);
     });
   }
 
@@ -57,7 +74,8 @@ export class CategoryComponent implements OnInit {
 
     this.form = this.fb.group({
       code: [this.selectedItem.code || '', Validators.required],
-      name: [this.selectedItem.name || null, Validators.required]
+      name: [this.selectedItem.name || null, Validators.required],
+      parentId: [this.selectedItem.parentId]
     });
   }
 
@@ -74,23 +92,58 @@ export class CategoryComponent implements OnInit {
           this.isModalOpen = false;
           this.form.reset();
           this.list.get();
+          this.getParents();
         });
     } else {
       this.categoryService.create(this.form.value).subscribe(() => {
         this.isModalOpen = false;
         this.form.reset();
         this.list.get();
+        this.getParents();
       });
     }
   }
 
   // Add a delete method
-delete(id: string) {
-  this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
-    if (status === Confirmation.Status.confirm) {
-      this.categoryService.delete(id).subscribe(() => this.list.get());
-    }
-  });
-}
+  delete(id: string) {
+    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
+      if (status === Confirmation.Status.confirm) {
+        this.categoryService.delete(id).subscribe(() => {
+          this.list.get();
+          this.getParents();
+        });
+      }
+    });
+  }
 
+  onSelect(row, e) {
+    // console.log(this.category.items.filter(x => x.checked))
+
+    if (e.currentTarget.checked) {
+      this.checkedItems.push(row.id);
+    }
+    else {
+      this.checkedItems.forEach((element, index) => {
+        console.log(element)
+        if (element == row.id) {
+          this.checkedItems.splice(index, 1);
+        }
+      });
+    }
+  }
+
+  showEdit(id: string) {
+    this.router.navigateByUrl('/categories/Edit/' + id);
+  }
+
+  deleteMulti() {
+    this.selectedItems.id = this.checkedItems;
+    console.log(this.selectedItems.id)
+
+    this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
+      if (status === Confirmation.Status.confirm) {
+        this.categoryService.deleteMany(this.selectedItems).subscribe(() => this.list.get());
+      }
+    });
+  }
 }

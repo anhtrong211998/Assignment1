@@ -15,6 +15,8 @@ namespace StudyRequrement.Categories
 
         public string Name { get; set; }
 
+        public string ParentId { get; set; }
+
         private Category()
         {
         }
@@ -22,11 +24,13 @@ namespace StudyRequrement.Categories
         internal Category(
             Guid id,
             [NotNull] string code,
-            [NotNull] string name)
+            [NotNull] string name,
+            [CanBeNull] string parentId = null)
             : base(id)
         {
             SetCode(code);
             SetName(name);
+            ParentId = parentId;
         }
 
         private void SetName([NotNull] string name)
