@@ -28,7 +28,7 @@ namespace StudyRequrement
                 await _categoryRepository.InsertAsync(
                     await _categoryManager.CreateAsync(
                         "DODONG_TRAU_BO_CAN",
-                        "Trâu - bò cân hàng"
+                        "Trâu-bò cân hàng"
                     )
                 );
 

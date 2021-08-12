@@ -17,6 +17,7 @@ import { APP_ROUTE_PROVIDER } from './route.provider';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { NavbarComponent } from './navbar/navbar.component';
+import { AppService } from './shared/services/app.service';
 
 @NgModule({
   imports: [
@@ -36,7 +37,7 @@ import { NavbarComponent } from './navbar/navbar.component';
     ThemeBasicModule.forRoot(),
   ],
   declarations: [AppComponent, HeaderComponent, FooterComponent, NavbarComponent],
-  providers: [APP_ROUTE_PROVIDER],
+  providers: [APP_ROUTE_PROVIDER,AppService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

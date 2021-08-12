@@ -3,7 +3,12 @@
 <app-navbar></app-navbar>
 <div id="layoutSidenav_content">
     <main>
-        <router-outlet></router-outlet>
+        <div class="spinner-border text-success spinner" role="status" *ngIf="isLoading" style="max-width: 500px;margin: auto">
+            <span class="sr-only">Loading...</span>
+          </div>
+
+          <!-- Add the modal here -->
+        <router-outlet *ngIf="!isLoading"></router-outlet>
     </main>
     <app-footer></app-footer>
 </div>

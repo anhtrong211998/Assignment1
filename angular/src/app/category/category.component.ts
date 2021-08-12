@@ -6,6 +6,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
 import { combineLatest } from 'rxjs';
 import { Router } from '@angular/router';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { CreateCategoryComponent } from './create-category/create-category.component';
+import { AppService } from '../shared/services/app.service';
 
 @Component({
   selector: 'app-category',
@@ -18,31 +21,37 @@ import { Router } from '@angular/router';
 })
 export class CategoryComponent implements OnInit {
   category = { items: [], totalCount: 0 } as PagedResultDto<CategoryDto>;
+   // Default
+   public bsModalRef: BsModalRef;
 
-  isModalOpen = false; // add this line
+  public selectedItem = {} as CategoryDto; 
 
-  form: FormGroup; // add this line
+  public parentCategories=[] as CategoryDto[];
 
-  selectedItem = {} as CategoryDto; // declare selectedBook
+  public checkedItems = [];
 
-  parentCategories=[] as CategoryDto[];
+  public input = {} as GetCategoryListDto;
 
-  checkedItems = [];
+  public selectedItems = {} as DeleteMutiCategoryDto;
 
-  public filter: string = '';
+  public currentPage: number = 1;
 
-  input = {} as GetCategoryListDto;
-
-  selectedItems = {} as DeleteMutiCategoryDto;
-
-  loading: string = '';
-  inProgress: boolean;
+  public pageSize: number = 5;
 
   constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService, 
-    private fb: FormBuilder, private confirmation: ConfirmationService,private router: Router) { }
+    private fb: FormBuilder, private confirmation: ConfirmationService,private router: Router,
+    private modalService: BsModalService, private appService: AppService) { }
 
   ngOnInit() {
-    // this.input.maxResultCount = 5;
+
+    this.loadData()
+  }
+
+  // load data method
+  loadData(){
+    this.input.maxResultCount = this.pageSize;
+    this.input.skipCount = (this.currentPage - 1) * this.pageSize;
+    // console.log(this.input.skipCount);
     const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
     this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
       this.category = response;
@@ -50,67 +59,54 @@ export class CategoryComponent implements OnInit {
     this.getParents();
   }
 
+  // add get parent of categories
   getParents(){
     this.input.parentId = '';
     this.categoryService.getListParent().subscribe((response) => {
       this.parentCategories = response
-      console.log(response);
     });
   }
 
+  // add new method
   createNew() {
-    
-    this.selectedItem = {} as CategoryDto; // reset the selected book
-      this.buildForm(); // add this line
-      this.isModalOpen = true;
-  }
-
-  // Add editBook method
-  edit(id: string) {
-    this.categoryService.get(id).subscribe((response) => {
-      this.selectedItem = response;
-      this.buildForm();
-      this.isModalOpen = true;
+    const initialState = {
+      isModalOpen: true,
+      parentItems: this.parentCategories
+    };
+    this.bsModalRef = this.modalService.show(CreateCategoryComponent,
+      {
+        initialState: initialState,
+        class: 'modal-lg',
+        backdrop: 'static'
+      });
+    this.bsModalRef.content.savedEvent.subscribe((response) => {
+      this.bsModalRef.hide();
+      this.appService.load = true;
+      this.loadData();
+      this.selectedItem = {} as CategoryDto; // reset the selected book
     });
-  }
-  // add buildForm method
-  buildForm() {
-      this.form = this.fb.group({
-        code: [this.selectedItem.code || '', Validators.required],
-        name: [this.selectedItem.name || null, Validators.required],
-        parentId: [this.selectedItem.parentId]
-      });
     
   }
 
-  // add save method
-  save() {
-    if (this.form.invalid) {
-      return;
-    }
-    this.inProgress = true;
-    if (this.selectedItem.id) {
-      this.categoryService
-        .update(this.selectedItem.id, this.form.value)
-        .subscribe(() => {
-          this.inProgress = false;
-          this.isModalOpen = false;
-         
-          this.form.reset();
-          this.list.get();
-          this.getParents();
-
-        });
-    } else {
-      this.categoryService.create(this.form.value).subscribe(() => {
-        this.inProgress = false;
-        this.isModalOpen = false;
-        
-        this.form.reset();
-        this.list.get();
-        this.getParents();
+  // Add edit method
+  edit(id: string) {
+    const initialState = {
+      isModalOpen: true,
+      parentItems: this.parentCategories,
+      entityId: id
+    };
+    this.bsModalRef = this.modalService.show(CreateCategoryComponent,
+      {
+        initialState: initialState,
+        class: 'modal-lg',
+        backdrop: 'static'
       });
-    }
+    this.bsModalRef.content.savedEvent.subscribe((response) => {
+      this.bsModalRef.hide();
+      this.appService.load = true;
+      this.loadData();
+      this.selectedItem = {} as CategoryDto; // reset the selected book
+    });
   }
 
   // Add a delete method
@@ -118,16 +114,15 @@ export class CategoryComponent implements OnInit {
     this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
       if (status === Confirmation.Status.confirm) {
         this.categoryService.delete(id).subscribe(() => {
-          this.list.get();
-          this.getParents();
+          this.appService.load = true;
+          this.loadData();
         });
       }
     });
   }
 
+  // Add checked method
   onSelect(row, e) {
-    // console.log(this.category.items.filter(x => x.checked))
-
     if (e.currentTarget.checked) {
       this.checkedItems.push(row.id);
     }
@@ -141,10 +136,21 @@ export class CategoryComponent implements OnInit {
     }
   }
 
+  // Add change page method
+  onPageChange(e){
+    this.currentPage = e.page;
+    this.loadData();
+    // this.input.maxResultCount = this.pageSize;
+    // this.input.skipCount = (this.currentPage - 1) * this.pageSize;
+    // this.list.get();
+  }
+
+  // go to edit page
   showEdit(id: string) {
     this.router.navigateByUrl('/categories/Edit/' + id);
   }
 
+  // delete multi method
   deleteMulti() {
     this.selectedItems.id = this.checkedItems;
     console.log(this.selectedItems.id)

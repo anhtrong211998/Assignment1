@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CategoryDto, CategoryService } from '@proxy/categories';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-create-category',
@@ -10,50 +12,68 @@ import { CategoryDto, CategoryService } from '@proxy/categories';
 })
 export class CreateCategoryComponent implements OnInit {
 
+  public isModalOpen: boolean; // add this line
 
-  selectedItem = {} as CategoryDto; // declare selectedBook
-  form: FormGroup; // add this line
+  public selectItem = {} as CategoryDto; // declare selectedBook
+
+  public form: FormGroup; // add this line
+
   public entityId: string;
 
-  constructor(private categoryService: CategoryService,private fb: FormBuilder,private router: Router,private activeRoute: ActivatedRoute) {}
+  public parentItems: CategoryDto[];
+
+  private subscription = new Subscription();
+
+  private savedEvent: EventEmitter<any> = new EventEmitter();
+
+  constructor(private categoryService: CategoryService,private fb: FormBuilder,private router: Router,private activeRoute: ActivatedRoute,public bsModalRef: BsModalRef,) {}
 
 
   ngOnInit(): void {
-    this.activeRoute.params.subscribe(params => {
-      this.entityId = params['id'];
-      console.log(this.entityId);
-    })
+    // this.activeRoute.params.subscribe(params => {
+    //   this.entityId = params['id'];
+    //   console.log(this.entityId);
+    // })
     if (this.entityId) {
-      this.categoryService.get(this.entityId).subscribe((response) => {
-        this.selectedItem = response;
+      this.subscription.add(this.categoryService.get(this.entityId).subscribe((response) => {
+        this.selectItem = response;
+         console.log(this.selectItem);
         this.buildForm();
-      });
+      }));
     } else {
-      this.selectedItem = {} as CategoryDto;
+      this.selectItem = {} as CategoryDto;
       this.buildForm();
     }
     
   }
-
   // add buildForm method
   buildForm() {
-
+    console.log(this.parentItems);
     this.form = this.fb.group({
-      code: [this.selectedItem.code || '', Validators.required],
-      name: [this.selectedItem.name || null, Validators.required]
+      parentId: [this.selectItem.code||null],
+      code: [this.selectItem.code || '', Validators.required],
+      name: [this.selectItem.name || null, Validators.required],
     });
   }
 
-  // add save method
-  saveData() {
-    if (this.form.invalid) {
-      return;
+    // add save method
+    save() {
+      if (this.form.invalid) {
+        return;
+      }
+        if (this.selectItem.id) {
+          this.categoryService
+            .update(this.selectItem.id, this.form.value)
+            .subscribe(() => {
+              this.savedEvent.emit(this.form.value);
+            });
+        } else {
+          this.categoryService.create(this.form.value).subscribe(() => {
+            this.savedEvent.emit(this.form.value);
+          });
+        }
+      
     }
-      this.categoryService.create(this.form.value).subscribe(() => {
-        this.form.reset();
-        this.router.navigateByUrl('/categories');
-      });
-  }
   goBackToList() {
     this.router.navigateByUrl('/categories');
   }

@@ -4,19 +4,20 @@
     <li class="breadcrumb-item active">Danh mục</li>
   </ol>
 
-  <div class="row" style="background-color: rgba(0,0,0,.03);">
-    <div class="col-md-4 col-sm-4 pt-2 form-group">
-      <div class="input-group">
+  <div class="row mb-4" style="background-color: rgba(0,0,0,.03);margin: 0;height: auto;">
+    <div class="col-md-2 col-sm-2 pt-2">
+      <div class="form-group">
         <input type="text" (keyup.enter)="list.get()" [(ngModel)]="input.filter" class="form-control"
-          placeholder="Search for...">
+          placeholder="Search for..." autocomplete="off">
       </div>
     </div>
-    <div class="col-md-4 col-sm-4 pt-2">
+    <div class="col-md-2 col-sm-2 pt-2">
       <select class="form-control" (change)="list.get()" [(ngModel)]="input.parentId">
         <option selected value="">--chọn tất--</option>
-        <option *ngFor="let x of parentCategories" [value]="x.code">{{x.name}}</option>
+        <option *ngFor="let x of parentCategories" [value]="x.code">{{x.code}}</option>
       </select>
     </div>
+    <div class=" col-md-4 col-sm-4 pt-2"></div>
     <!-- Add the "new book" button here -->
     <div class=" col-md-4 col-sm-4 text-lg-right pt-2">
       <button id="create" class="btn btn-primary mx-2" type="button" (click)="createNew()">
@@ -30,8 +31,6 @@
     </div>
   </div>
 
-  <div class="row"></div>
-  <div class="clearfix"></div>
   <div class="card mb-4">
     <div class="card-header">
       <i class="fas fa-table me-1"></i>
@@ -39,10 +38,10 @@
     </div>
     <div class="card-body">
       <ngx-datatable [rows]="category.items" [count]="category.totalCount" [list]="list" default>
-        <ngx-datatable-column [name]="'Chọn'" [sortable]="false" [headerCheckboxable]="true" [width]="10">
+        <ngx-datatable-column [name]="'Chọn'" [sortable]="false" [width]="80" [canAutoResize]="false">
           <ng-template ngx-datatable-cell-template let-row="row">
             <input type="checkbox" (change)="onSelect(row,$event)" [name]="row.id"
-              style="width:50px; height:20px;text-align: center;" />
+              style="width:25px; height:20px" />
           </ng-template>
         </ngx-datatable-column>
         <ngx-datatable-column [name]="'::Mã danh mục' | abpLocalization" prop="code">
@@ -60,57 +59,38 @@
             {{ row.creationTime | date }}
           </ng-template>
         </ngx-datatable-column>
-        <ngx-datatable-column [name]="'Hành động'" [sortable]="false">
+        <ngx-datatable-column [name]="'Hành động'" [sortable]="false" [width]="150" [canAutoResize]="false">
           <ng-template let-row="row" ngx-datatable-cell-template>
             <button type="button" class="btn btn-secondary mx-1" (click)="edit(row.id)">
-              {{ '::Sửa' | abpLocalization }}
+              <i class="fas fa-edit"></i>
+              <!-- {{ '::Sửa' | abpLocalization }} -->
             </button>
             <button type="button" class="btn btn-danger mx-1" (click)="delete(row.id)">
-              {{ '::Xóa' | abpLocalization }}
+              <i class="fas fa-trash"></i>
+              <!-- {{ '::Xóa' | abpLocalization }} -->
             </button>
-            <button type="button" class="btn btn-primary mx-1" (click)="showEdit(row.id)">
+            <!-- <button type="button" class="btn btn-primary mx-1" (click)="showEdit(row.id)">
               <i class="fas fa-edit"></i>
-            </button>
+            </button> -->
           </ng-template>
         </ngx-datatable-column>
+        <ngx-datatable-footer>
+          <ng-template ngx-datatable-footer-template>
+            <div class="page-count">{{category.totalCount}} total </div>
+            <datatable-pager
+              [pagerLeftArrowIcon]="'datatable-icon-left'"
+              [pagerRightArrowIcon]="'datatable-icon-right'"
+              [pagerPreviousIcon]="'datatable-icon-prev'"
+              [pagerNextIcon]="'datatable-icon-skip'"
+              [page]="currentPage"
+              [size]="pageSize"
+              [count]="category.totalCount"
+              (change)="onPageChange($event)"
+            >
+            </datatable-pager>
+          </ng-template>
+        </ngx-datatable-footer>
       </ngx-datatable>
     </div>
   </div>
 </div>
-
-<!-- Add the modal here -->
-<abp-modal [(visible)]="isModalOpen" [busy]="inProgress">
-  <ng-template #abpHeader >
-    <h3>{{ (selectedItem.id ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h3>
-  </ng-template>
-
-  <ng-template #abpBody>
-    <form [formGroup]="form">
-      <div class="form-group">
-        <label for="category-name">Danh mục cha</label><span> * </span>
-        <select class="form-control" formControlName="parentId">
-          <option *ngFor="let x of parentCategories" [value]="x.code">{{x.name}}</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="category-code">Mã danh mục</label><span> * </span>
-        <input type="text" id="category-code" class="form-control" formControlName="code" autofocus />
-      </div>
-
-      <div class="form-group">
-        <label for="category-name">Tên danh mục</label><span> * </span>
-        <input type="text" id="category-name" class="form-control" formControlName="name" />
-      </div>
-      <div class="col-md-12 text-right">
-        <button type="button" class="btn btn-secondary mx-2" abpClose>
-          {{ '::Đóng' | abpLocalization }}
-        </button>
-        <!--added save button-->
-        <button class="btn btn-primary" (click)="save()">
-          <i class="fa fa-check mr-1"></i>
-          {{ '::Lưu' | abpLocalization }}
-        </button>
-      </div>
-    </form>
-  </ng-template>
-</abp-modal>
