@@ -23,10 +23,14 @@
       <input type="text" id="category-name" class="form-control" formControlName="name" autocomplete="off"/>
     </div>
   </div>
+  <!-- <button class="btn btn-secondary text-right mt-3 mx-5" (click)="goBackToList()" style="float: left;" *ngIf="isRouting">
+    <i class="fa fa-arrow-left"></i>
+  </button> -->
   <div class="modal-footer">
+    
       <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu lại</button>
       <!-- <button type="submit" class="btn btn-primary" >Lưu lại</button> -->
       &nbsp;
-      <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">Đóng</button>
+      <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()" *ngIf="isModalOpen">Đóng</button>
   </div>
 </form>

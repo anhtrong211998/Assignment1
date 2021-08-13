@@ -12,7 +12,9 @@ import { Subscription } from 'rxjs';
 })
 export class CreateCategoryComponent implements OnInit {
 
-  public isModalOpen: boolean; // add this line
+  public isModalOpen: boolean = true; // add this line
+
+  public isRouting: boolean = false; // add this line
 
   public selectItem = {} as CategoryDto; // declare selectedBook
 
@@ -30,10 +32,13 @@ export class CreateCategoryComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // this.activeRoute.params.subscribe(params => {
-    //   this.entityId = params['id'];
-    //   console.log(this.entityId);
-    // })
+    this.activeRoute.params.subscribe((params)=> {
+      //check lead Id here
+      if(params['id']){
+        this.entityId = params['id'];
+      }
+    });
+    console.log(this.entityId);
     if (this.entityId) {
       this.subscription.add(this.categoryService.get(this.entityId).subscribe((response) => {
         this.selectItem = response;
@@ -48,9 +53,8 @@ export class CreateCategoryComponent implements OnInit {
   }
   // add buildForm method
   buildForm() {
-    console.log(this.parentItems);
     this.form = this.fb.group({
-      parentId: [this.selectItem.code||null],
+      parentId: [this.selectItem.parentId||null],
       code: [this.selectItem.code || '', Validators.required],
       name: [this.selectItem.name || null, Validators.required],
     });
