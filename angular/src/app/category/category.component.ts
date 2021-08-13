@@ -140,6 +140,7 @@ export class CategoryComponent implements OnInit {
   onPageChange(e){
     this.currentPage = e.page;
     this.loadData();
+ 
     // this.input.maxResultCount = this.pageSize;
     // this.input.skipCount = (this.currentPage - 1) * this.pageSize;
     // this.list.get();
