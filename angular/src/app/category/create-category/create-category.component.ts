@@ -12,17 +12,18 @@ import { AppService } from 'src/app/shared/services/app.service';
   styleUrls: ['./create-category.component.scss']
 })
 export class CreateCategoryComponent implements OnInit {
-  @Input() isRouting: boolean = true; // add this line
 
-  @Input() selectItem :any; // declare selectedBook
+  private subscription = new Subscription();
 
-  public form: FormGroup; // add this line
+  public form: FormGroup; 
+
+  @Input() isRouting: boolean = true; 
+
+  @Input() selectItem :any; 
 
   @Input() entityId: string;
 
   @Input() parentItems: any[];
-
-  private subscription = new Subscription();
 
   @Output() savedEvent: EventEmitter<any> = new EventEmitter();
 
@@ -31,7 +32,6 @@ export class CreateCategoryComponent implements OnInit {
   constructor(private categoryService: CategoryService, private fb: FormBuilder,
     private router: Router, private activeRoute: ActivatedRoute,
     public bsModalRef: BsModalRef, private appService: AppService) { }
-
 
   ngOnInit(): void {
     if(this.isRouting){
@@ -58,6 +58,7 @@ export class CreateCategoryComponent implements OnInit {
       this.buildForm();
     }
   }
+
   // add buildForm method
   buildForm() {
     console.log(this.selectItem?.parentId);

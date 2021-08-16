@@ -31,7 +31,7 @@ export class CategoryComponent implements OnInit {
 
   public itemId: string;
 
-  category = { items: [], totalCount: 0 } as PagedResultDto<CategoryDto>;
+  public category = { items: [], totalCount: 0 } as PagedResultDto<CategoryDto>;
 
   public bsModalRef: BsModalRef;
 
@@ -47,7 +47,7 @@ export class CategoryComponent implements OnInit {
 
   public pageSize: number = 5;
 
-  formGrp: FormGroup;
+  public formGrp: FormGroup;
 
   @ViewChild(CreateCategoryComponent) createCategoryComp: CreateCategoryComponent;
 
@@ -56,7 +56,6 @@ export class CategoryComponent implements OnInit {
     private modalService: BsModalService, private appService: AppService) { }
 
   ngOnInit() {
-
     this.loadData()
   }
 
@@ -64,11 +63,17 @@ export class CategoryComponent implements OnInit {
   loadData() {
     this.input.maxResultCount = this.pageSize;
     this.input.skipCount = (this.currentPage - 1) * this.pageSize;
+    console.log(this.input.skipCount);
     const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
     this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
       this.category = response;
     });
     this.getParents();
+  }
+
+  searchData(){
+    this.currentPage = 1;
+    this.loadData();
   }
 
   // add get parent of categories

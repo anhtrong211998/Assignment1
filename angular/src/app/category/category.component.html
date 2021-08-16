@@ -7,7 +7,7 @@
   <div class="row mb-4" style="background-color: rgba(0,0,0,.03);margin: 0;height: auto;">
     <div class="col-md-2 col-sm-2 pt-2">
       <div class="form-group">
-        <input type="text" (keyup.enter)="list.get()" [(ngModel)]="input.filter" class="form-control"
+        <input type="text" (keyup.enter)="searchData()" [(ngModel)]="input.filter" class="form-control"
           placeholder="Search for..." autocomplete="off">
       </div>
     </div>
@@ -119,7 +119,6 @@
     <button type="button" class="btn btn-secondary" abpClose>
       {{ '::Close' | abpLocalization }}
     </button>
-    <!-- <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid"> -->
       <button class="btn btn-primary" type="submit" (click)="save()" [disabled]="formGrp?.invalid">
       <i class="fa fa-check mr-1"></i>
       {{ '::Save' | abpLocalization }}
