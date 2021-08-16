@@ -1,10 +1,10 @@
 import { ListService, PagedResultDto } from '@abp/ng.core';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CategoryDto, CategoryService, DeleteMutiCategoryDto, GetCategoryListDto } from '@proxy/categories';
 import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
-import { combineLatest } from 'rxjs';
+import { combineLatest, from } from 'rxjs';
 import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { CreateCategoryComponent } from './create-category/create-category.component';
@@ -20,13 +20,18 @@ import { AppService } from '../shared/services/app.service';
   ],
 })
 export class CategoryComponent implements OnInit {
+
+  public isModalOpen: boolean;
+
+  public isRoutingOpen: boolean;
+
+  public itemId: string;
+
   category = { items: [], totalCount: 0 } as PagedResultDto<CategoryDto>;
-   // Default
-   public bsModalRef: BsModalRef;
+  // Default
+  public bsModalRef: BsModalRef;
 
-  public selectedItem = {} as CategoryDto; 
-
-  public parentCategories=[] as CategoryDto[];
+  public parentCategories = [] as CategoryDto[];
 
   public checkedItems = [];
 
@@ -38,8 +43,12 @@ export class CategoryComponent implements OnInit {
 
   public pageSize: number = 5;
 
-  constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService, 
-    private fb: FormBuilder, private confirmation: ConfirmationService,private router: Router,
+  formGrp: FormGroup; // add this line
+
+  @ViewChild(CreateCategoryComponent) createCategoryComp: CreateCategoryComponent;
+
+  constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService,
+    private fb: FormBuilder, private confirmation: ConfirmationService, private router: Router,
     private modalService: BsModalService, private appService: AppService) { }
 
   ngOnInit() {
@@ -48,10 +57,9 @@ export class CategoryComponent implements OnInit {
   }
 
   // load data method
-  loadData(){
+  loadData() {
     this.input.maxResultCount = this.pageSize;
     this.input.skipCount = (this.currentPage - 1) * this.pageSize;
-    // console.log(this.input.skipCount);
     const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
     this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
       this.category = response;
@@ -60,7 +68,7 @@ export class CategoryComponent implements OnInit {
   }
 
   // add get parent of categories
-  getParents(){
+  getParents() {
     this.input.parentId = '';
     this.categoryService.getListParent().subscribe((response) => {
       this.parentCategories = response
@@ -69,44 +77,46 @@ export class CategoryComponent implements OnInit {
 
   // add new method
   createNew() {
-    const initialState = {
-      isModalOpen: true,
-      parentItems: this.parentCategories
-    };
-    this.bsModalRef = this.modalService.show(CreateCategoryComponent,
-      {
-        initialState: initialState,
-        class: 'modal-lg',
-        backdrop: 'static'
+    this.isModalOpen = true;
+    this.isRoutingOpen = false;
+  }
+
+  // add save method
+  evtSave(e) {
+    // this.isModalOpen = false;
+    // this.appService.load = true;
+    // this.loadData();
+    if (this.itemId) {
+      this.categoryService
+        .update(this.itemId, e)
+        .subscribe(() => {
+          this.isModalOpen = false;
+          this.appService.load = true;
+          this.loadData();
+        });
+    }
+    else {
+      this.categoryService.create(e).subscribe(() => {
+        this.isModalOpen = false;
+        this.appService.load = true;
+        this.loadData();
       });
-    this.bsModalRef.content.savedEvent.subscribe((response) => {
-      this.bsModalRef.hide();
-      this.appService.load = true;
-      this.loadData();
-      this.selectedItem = {} as CategoryDto; // reset the selected book
-    });
-    
+    }
+  }
+
+  frmEvent(form) {
+    this.formGrp = form;
+  }
+
+  save() {
+    this.createCategoryComp.save();
   }
 
   // Add edit method
   edit(id: string) {
-    const initialState = {
-      isModalOpen: true,
-      parentItems: this.parentCategories,
-      entityId: id
-    };
-    this.bsModalRef = this.modalService.show(CreateCategoryComponent,
-      {
-        initialState: initialState,
-        class: 'modal-lg',
-        backdrop: 'static'
-      });
-    this.bsModalRef.content.savedEvent.subscribe((response) => {
-      this.bsModalRef.hide();
-      this.appService.load = true;
-      this.loadData();
-      this.selectedItem = {} as CategoryDto; // reset the selected book
-    });
+    this.isModalOpen = true;
+    this.isRoutingOpen = false;
+    this.itemId = id;
   }
 
   // Add a delete method
@@ -128,7 +138,6 @@ export class CategoryComponent implements OnInit {
     }
     else {
       this.checkedItems.forEach((element, index) => {
-        console.log(element)
         if (element == row.id) {
           this.checkedItems.splice(index, 1);
         }
@@ -137,13 +146,9 @@ export class CategoryComponent implements OnInit {
   }
 
   // Add change page method
-  onPageChange(e){
+  onPageChange(e) {
     this.currentPage = e.page;
     this.loadData();
- 
-    // this.input.maxResultCount = this.pageSize;
-    // this.input.skipCount = (this.currentPage - 1) * this.pageSize;
-    // this.list.get();
   }
 
   // go to edit page
@@ -154,7 +159,6 @@ export class CategoryComponent implements OnInit {
   // delete multi method
   deleteMulti() {
     this.selectedItems.id = this.checkedItems;
-    console.log(this.selectedItems.id)
 
     this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
       if (status === Confirmation.Status.confirm) {

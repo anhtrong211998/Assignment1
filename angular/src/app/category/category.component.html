@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="col-md-2 col-sm-2 pt-2">
-      <select class="form-control" (change)="list.get()" [(ngModel)]="input.parentId">
+      <select class="form-control custom-select" (change)="list.get()" [(ngModel)]="input.parentId">
         <option selected value="">--chọn tất--</option>
         <option *ngFor="let x of parentCategories" [value]="x.code">{{x.code}}</option>
       </select>
@@ -96,3 +96,32 @@
     </div>
   </div>
 </div>
+
+<!-- Add the modal here -->
+<abp-modal [(visible)]="isModalOpen">
+  
+
+  <ng-template #abpHeader>
+    <h3>{{ (itemId ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h3>
+  </ng-template>
+  
+  <ng-template #abpBody>
+    <app-create-category
+  [isRouting]="isRoutingOpen"
+  [entityId]="itemId"
+  [parentItems]="parentCategories"
+  (formEvent) = "frmEvent($event)"
+  (savedEvent)="evtSave($event)"></app-create-category>
+  </ng-template>
+  
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      {{ '::Close' | abpLocalization }}
+    </button>
+    <!-- <button class="btn btn-primary" (click)="save()" [disabled]="form.invalid"> -->
+      <button class="btn btn-primary" type="submit" (click)="save()" [disabled]="formGrp?.invalid">
+      <i class="fa fa-check mr-1"></i>
+      {{ '::Save' | abpLocalization }}
+    </button>
+  </ng-template>
+</abp-modal>

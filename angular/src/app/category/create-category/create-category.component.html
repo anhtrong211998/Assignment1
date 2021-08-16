@@ -1,4 +1,4 @@
-<div class="modal-header">
+<!-- <div class="modal-header">
   <h4 class="modal-title pull-left">{{ (selectItem.id ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h4>
   <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
       <span aria-hidden="true">&times;</span>
@@ -23,14 +23,38 @@
       <input type="text" id="category-name" class="form-control" formControlName="name" autocomplete="off"/>
     </div>
   </div>
-  <!-- <button class="btn btn-secondary text-right mt-3 mx-5" (click)="goBackToList()" style="float: left;" *ngIf="isRouting">
+  <button class="btn btn-secondary text-right mt-3 mx-5" (click)="goBackToList()" style="float: left;" *ngIf="isRouting">
     <i class="fa fa-arrow-left"></i>
-  </button> -->
+  </button> 
   <div class="modal-footer">
     
       <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Lưu lại</button>
-      <!-- <button type="submit" class="btn btn-primary" >Lưu lại</button> -->
       &nbsp;
       <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()" *ngIf="isModalOpen">Đóng</button>
   </div>
+</form> -->
+
+<form [formGroup]="form" (ngSubmit)="save()" *ngIf="form">
+  <div class="modal-body div-scroll">
+    <div class="form-group">
+      <label for="category-name">Danh mục cha</label><span> * </span>
+      <select class="form-control custom-select" formControlName="parentId">
+        <option selected value='null'>-------Danh mục cha--------</option>
+        <option *ngFor="let x of parentItems" [value]="x.code">{{x.code}}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="category-code">Mã danh mục</label><span> * </span>
+      <input type="text" id="category-code" class="form-control" formControlName="code" autocomplete="off" />
+    </div>
+
+    <div class="form-group">
+      <label for="category-name">Tên danh mục</label><span> * </span>
+      <input type="text" id="category-name" class="form-control" formControlName="name" autocomplete="off"/>
+    </div>
+  </div>
+  <button class="btn btn-secondary text-right mx-3" (click)="goBackToList()" *ngIf="isRouting">
+    <i class="fa fa-arrow-left"></i>
+  </button> 
+  <button type="submit" class="btn btn-primary mx-3" [disabled]="form.invalid" style="float: right;" *ngIf="isRouting">Lưu lại</button>
 </form>
