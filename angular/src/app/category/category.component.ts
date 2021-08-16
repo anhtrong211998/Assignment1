@@ -63,7 +63,6 @@ export class CategoryComponent implements OnInit {
   loadData() {
     this.input.maxResultCount = this.pageSize;
     this.input.skipCount = (this.currentPage - 1) * this.pageSize;
-    console.log(this.input.skipCount);
     const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
     this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
       this.category = response;

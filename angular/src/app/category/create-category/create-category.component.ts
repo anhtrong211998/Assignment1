@@ -61,7 +61,6 @@ export class CreateCategoryComponent implements OnInit {
 
   // add buildForm method
   buildForm() {
-    console.log(this.selectItem?.parentId);
     this.form = this.fb.group({
       parentId: [this.selectItem?.parentId || null],
       code: [this.selectItem?.code || '', Validators.required],
