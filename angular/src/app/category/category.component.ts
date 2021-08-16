@@ -4,7 +4,7 @@ import { CategoryDto, CategoryService, DeleteMutiCategoryDto, GetCategoryListDto
 import { NgbDateNativeAdapter, NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, Confirmation } from '@abp/ng.theme.shared';
-import { combineLatest, from } from 'rxjs';
+import { combineLatest, from, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { CreateCategoryComponent } from './create-category/create-category.component';
@@ -21,6 +21,10 @@ import { AppService } from '../shared/services/app.service';
 })
 export class CategoryComponent implements OnInit {
 
+  private subscription = new Subscription();
+
+  public selectedItem = {} as CategoryDto;
+
   public isModalOpen: boolean;
 
   public isRoutingOpen: boolean;
@@ -28,7 +32,7 @@ export class CategoryComponent implements OnInit {
   public itemId: string;
 
   category = { items: [], totalCount: 0 } as PagedResultDto<CategoryDto>;
-  // Default
+
   public bsModalRef: BsModalRef;
 
   public parentCategories = [] as CategoryDto[];
@@ -43,7 +47,7 @@ export class CategoryComponent implements OnInit {
 
   public pageSize: number = 5;
 
-  formGrp: FormGroup; // add this line
+  formGrp: FormGroup;
 
   @ViewChild(CreateCategoryComponent) createCategoryComp: CreateCategoryComponent;
 
@@ -79,13 +83,11 @@ export class CategoryComponent implements OnInit {
   createNew() {
     this.isModalOpen = true;
     this.isRoutingOpen = false;
+    this.selectedItem = {} as CategoryDto;
   }
 
-  // add save method
+  // add save event emitter method
   evtSave(e) {
-    // this.isModalOpen = false;
-    // this.appService.load = true;
-    // this.loadData();
     if (this.itemId) {
       this.categoryService
         .update(this.itemId, e)
@@ -93,6 +95,7 @@ export class CategoryComponent implements OnInit {
           this.isModalOpen = false;
           this.appService.load = true;
           this.loadData();
+          this.selectedItem = {} as CategoryDto;
         });
     }
     else {
@@ -100,6 +103,7 @@ export class CategoryComponent implements OnInit {
         this.isModalOpen = false;
         this.appService.load = true;
         this.loadData();
+        this.selectedItem = {} as CategoryDto;
       });
     }
   }
@@ -114,9 +118,13 @@ export class CategoryComponent implements OnInit {
 
   // Add edit method
   edit(id: string) {
-    this.isModalOpen = true;
-    this.isRoutingOpen = false;
-    this.itemId = id;
+    this.subscription.add(this.categoryService.get(id).subscribe((response) => {
+      this.selectedItem = response;
+      this.isModalOpen = true;
+      this.isRoutingOpen = false;
+      this.itemId = id;
+    }));
+    
   }
 
   // Add a delete method
@@ -152,7 +160,8 @@ export class CategoryComponent implements OnInit {
   }
 
   // go to edit page
-  showEdit(id: string) {
+  goToEdit(id: string) {
+    this.appService.load = true;
     this.router.navigateByUrl('/categories/Edit/' + id);
   }
 
@@ -162,7 +171,10 @@ export class CategoryComponent implements OnInit {
 
     this.confirmation.warn('::AreYouSureToDelete', '::AreYouSure').subscribe((status) => {
       if (status === Confirmation.Status.confirm) {
-        this.categoryService.deleteMany(this.selectedItems).subscribe(() => this.list.get());
+        this.categoryService.deleteMany(this.selectedItems).subscribe(() => {
+          this.appService.load = true;
+          this.list.get();
+        });
       }
     });
   }

@@ -59,8 +59,8 @@
             {{ row.creationTime | date }}
           </ng-template>
         </ngx-datatable-column>
-        <!-- <ngx-datatable-column [name]="'Hành động'" [sortable]="false" [width]="250" [canAutoResize]="false"> -->
-          <ngx-datatable-column [name]="'Hành động'" [sortable]="false" [width]="150" [canAutoResize]="false">
+        <ngx-datatable-column [name]="'Hành động'" [sortable]="false" [width]="250" [canAutoResize]="false">
+          <!-- <ngx-datatable-column [name]="'Hành động'" [sortable]="false" [width]="150" [canAutoResize]="false"> -->
           <ng-template let-row="row" ngx-datatable-cell-template>
             <button type="button" class="btn btn-secondary mx-1" (click)="edit(row.id)">
               <i class="fas fa-edit"></i>
@@ -70,10 +70,10 @@
               <i class="fas fa-trash"></i>
               <!-- {{ '::Xóa' | abpLocalization }} -->
             </button>
-            <!-- <button type="button" class="btn btn-primary mx-1" (click)="showEdit(row.id)">
+            <button type="button" class="btn btn-primary mx-1" (click)="goToEdit(row.id)">
               <i class="fas fa-edit"></i>
               {{ '::Sửa' | abpLocalization }}
-            </button> -->
+            </button>
           </ng-template>
         </ngx-datatable-column>
         <ngx-datatable-footer>
@@ -102,7 +102,7 @@
   
 
   <ng-template #abpHeader>
-    <h3>{{ (itemId ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h3>
+    <h3>{{ (itemId ? '::Sửa danh mục' : '::Thêm mới danh mục') | abpLocalization }}</h3>
   </ng-template>
   
   <ng-template #abpBody>
@@ -110,6 +110,7 @@
   [isRouting]="isRoutingOpen"
   [entityId]="itemId"
   [parentItems]="parentCategories"
+  [selectItem] = "selectedItem"
   (formEvent) = "frmEvent($event)"
   (savedEvent)="evtSave($event)"></app-create-category>
   </ng-template>
