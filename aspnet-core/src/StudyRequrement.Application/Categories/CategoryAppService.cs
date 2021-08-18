@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 
 namespace StudyRequrement.Categories
 {
@@ -46,7 +47,7 @@ namespace StudyRequrement.Categories
             var totalCount = input.Filter == null
                 ? await _categoryRepository.CountAsync()
                 : await _categoryRepository.CountAsync(
-                    category => category.Code.Contains(input.Filter) || category.Name.Contains(input.Filter));
+                    category => category.Code.Contains(input.Filter) || category.ViName.Contains(input.Filter) || category.EnName.Contains(input.Filter));
 
             return new PagedResultDto<CategoryDto>(
                 totalCount,
@@ -56,14 +57,15 @@ namespace StudyRequrement.Categories
 
         public async Task<List<CategoryDto>> GetListParentAsync()
         {
-            var categories = await _categoryRepository.GetListParentAsync();
-            return ObjectMapper.Map<List<Category>, List<CategoryDto>>(categories);
+            var query = await _categoryRepository.GetListParentAsync();
+            return ObjectMapper.Map<List<Category>, List<CategoryDto>>(query); ;
         }
         public async Task<CategoryDto> CreateAsync(CreateUpdateCategoryDto input)
         {
             var category = await _categoryManager.CreateAsync(
                 input.Code,
-                input.Name,
+                input.ViName,
+                input.EnName,
                 input.ParentId
             );
 
@@ -76,8 +78,8 @@ namespace StudyRequrement.Categories
         {
             var category = await _categoryRepository.GetAsync(id);
             category.Code = input.Code;
-            category.Name = input.Name;
-
+            category.ViName = input.ViName;
+            category.EnName = input.EnName;
             await _categoryRepository.UpdateAsync(category);
         }
 
@@ -89,6 +91,22 @@ namespace StudyRequrement.Categories
         public async Task DeleteManyAsync(DeleteMutiCategoryDto request)
         {
             await _categoryRepository.DeleteManyAsync(request.Id);
+        }
+
+        public async Task<string> GetCodeGenerateAsync()
+        {
+            string date = String.Format("{0}{1}{2}",DateTime.Now.Year.ToString(), DateTime.Now.Month.ToString(), DateTime.Now.Day.ToString());
+            var category = await _categoryRepository.GetLastCodeAsync(date);
+            int temp = 1;
+            if (category != null)
+            {
+                { temp = Convert.ToInt16(category.Code.Substring(category.Code.ToString().Length - 4)) + 1; }
+            }
+            
+            string genCode = temp.ToString();
+            while (genCode.Length < 4) { genCode = string.Format("0{0}", genCode); }
+            genCode = string.Format("CT{0}_{1}",date, genCode);
+            return genCode;
         }
     }
 }

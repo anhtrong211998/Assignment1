@@ -6,6 +6,7 @@ import { SharedModule } from '../shared/shared.module';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { CreateCategoryComponent } from './create-category/create-category.component'; // add this line
 import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
+import { TreeModule } from '@circlon/angular-tree-component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { BsModalRef, BsModalService, ModalModule } from 'ngx-bootstrap/modal';
     SharedModule,
     CategoryRoutingModule,
     NgbDatepickerModule,
+    TreeModule,
     ModalModule.forRoot()
   ],
   providers: [

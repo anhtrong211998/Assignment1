@@ -11,13 +11,31 @@
           placeholder="Search for..." autocomplete="off">
       </div>
     </div>
-    <div class="col-md-2 col-sm-2 pt-2">
-      <select class="form-control custom-select" (change)="list.get()" [(ngModel)]="input.parentId">
+    <div class=" col-md-2 col-sm-2 pt-2">
+      <select class="form-control custom-select" (click)="showSelect()" [(ngModel)]="strParent" *ngIf="!isShowSelect">
         <option selected value="">--chọn tất--</option>
         <option *ngFor="let x of parentCategories" [value]="x.code">{{x.code}}</option>
       </select>
+
+      <div *ngIf="isShowSelect">
+        <input type="text" id="category-name" class="form-control" autocomplete="off" />
+        <!-- <select class="form-control custom-select" (change)="showSelect($event)">
+          <option selected value="">--chọn tất--</option>
+        </select> -->
+        
+        <div class="card border-left-primary shadow h-100 py-2">
+          <div class="card-body">
+            <button style="border: none; background:none; font-size: 18px;" type="button" (click)="Select()">--------chọn tất--------</button>
+            <tree-root [nodes]="parentItems" (activate)="onEvent($event)">
+              <ng-template #treeNodeTemplate let-node let-index="index">
+                <span>{{ node.data.code }}</span>
+              </ng-template>
+            </tree-root>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class=" col-md-4 col-sm-4 pt-2"></div>
+    <div class=" col-md-2 col-sm-2 pt-2"></div>
     <!-- Add the "new book" button here -->
     <div class=" col-md-4 col-sm-4 text-lg-right pt-2">
       <button id="create" class="btn btn-primary mx-2" type="button" (click)="createNew()">
@@ -40,8 +58,7 @@
       <ngx-datatable [rows]="category.items" [count]="category.totalCount" [list]="list" default>
         <ngx-datatable-column [name]="'Chọn'" [sortable]="false" [width]="80" [canAutoResize]="false">
           <ng-template ngx-datatable-cell-template let-row="row">
-            <input type="checkbox" (change)="onSelect(row,$event)" [name]="row.id"
-              style="width:25px; height:20px" />
+            <input type="checkbox" (change)="onSelect(row,$event)" [name]="row.id" style="width:25px; height:20px" />
           </ng-template>
         </ngx-datatable-column>
         <ngx-datatable-column [name]="'::Mã danh mục' | abpLocalization" prop="code">
@@ -51,7 +68,7 @@
         </ngx-datatable-column>
         <ngx-datatable-column [name]="'::Tên danh mục' | abpLocalization" prop="name">
           <ng-template let-row="row" ngx-datatable-cell-template>
-            {{ row.name}}
+            {{ row.viName}}
           </ng-template>
         </ngx-datatable-column>
         <ngx-datatable-column [name]="'::Ngày tạo' | abpLocalization" prop="creationTime">
@@ -79,16 +96,9 @@
         <ngx-datatable-footer>
           <ng-template ngx-datatable-footer-template>
             <div class="page-count">{{category.totalCount}} total </div>
-            <datatable-pager
-              [pagerLeftArrowIcon]="'datatable-icon-left'"
-              [pagerRightArrowIcon]="'datatable-icon-right'"
-              [pagerPreviousIcon]="'datatable-icon-prev'"
-              [pagerNextIcon]="'datatable-icon-skip'"
-              [page]="currentPage"
-              [size]="pageSize"
-              [count]="category.totalCount"
-              (change)="onPageChange($event)"
-            >
+            <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'" [pagerRightArrowIcon]="'datatable-icon-right'"
+              [pagerPreviousIcon]="'datatable-icon-prev'" [pagerNextIcon]="'datatable-icon-skip'" [page]="currentPage"
+              [size]="pageSize" [count]="category.totalCount" (change)="onPageChange($event)">
             </datatable-pager>
           </ng-template>
         </ngx-datatable-footer>
@@ -99,27 +109,24 @@
 
 <!-- Add the modal here -->
 <abp-modal [(visible)]="isModalOpen">
-  
+
 
   <ng-template #abpHeader>
     <h3>{{ (itemId ? '::Sửa danh mục' : '::Thêm mới danh mục') | abpLocalization }}</h3>
   </ng-template>
-  
+
   <ng-template #abpBody>
-    <app-create-category
-  [isRouting]="isRoutingOpen"
-  [entityId]="itemId"
-  [parentItems]="parentCategories"
-  [selectItem] = "selectedItem"
-  (formEvent) = "frmEvent($event)"
-  (savedEvent)="evtSave($event)"></app-create-category>
+    <app-create-category [isRouting]="isRoutingOpen" [entityId]="itemId" [parentItems]="parentItems"
+      [parentCategories]="parentCategories" [selectItem]="selectedItem" (formEvent)="frmEvent($event)"
+      (savedEvent)="evtSave($event)">
+    </app-create-category>
   </ng-template>
-  
+
   <ng-template #abpFooter>
     <button type="button" class="btn btn-secondary" abpClose>
       {{ '::Close' | abpLocalization }}
     </button>
-      <button class="btn btn-primary" type="submit" (click)="save()" [disabled]="formGrp?.invalid">
+    <button class="btn btn-primary" type="submit" (click)="save()" [disabled]="formGrp?.invalid">
       <i class="fa fa-check mr-1"></i>
       {{ '::Save' | abpLocalization }}
     </button>

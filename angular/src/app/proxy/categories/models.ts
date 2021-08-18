@@ -2,13 +2,15 @@ import type { AuditedEntityDto, PagedAndSortedResultRequestDto } from '@abp/ng.c
 
 export interface CategoryDto extends AuditedEntityDto<string> {
   code?: string;
-  name?: string;
+  viName?: string;
+  enName?: string;
   parentId?: string;
 }
 
 export interface CreateUpdateCategoryDto {
   code: string;
-  name: string;
+  viName?: string;
+  enName?: string;
   parentId?: string;
 }
 

@@ -11,9 +11,11 @@ namespace StudyRequrement.Categories
         [StringLength(100)]
         public string Code { get; set; }
 
-        [Required]
         [StringLength(255)]
-        public string Name { get; set; }
+        public string ViName { get; set; }
+
+        [StringLength(255)]
+        public string EnName { get; set; }
 
         public string ParentId { get; set; }
 

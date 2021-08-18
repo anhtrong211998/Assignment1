@@ -87,10 +87,10 @@ namespace StudyRequrement.EntityFrameworkCore
                 c.Property(x => x.Code)
                     .IsRequired()
                     .HasMaxLength(100);
-                c.Property(x => x.Name)
-                    .IsRequired()
+                c.Property(x => x.ViName)
                     .HasMaxLength(255);
-
+                c.Property(x => x.EnName)
+                    .HasMaxLength(255);
                 c.HasIndex(x => x.Code);
             });
         }

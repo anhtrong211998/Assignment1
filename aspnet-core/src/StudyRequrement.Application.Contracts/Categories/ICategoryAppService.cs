@@ -11,6 +11,8 @@ namespace StudyRequrement.Categories
     {
         Task<CategoryDto> GetAsync(Guid id);
 
+        Task<string> GetCodeGenerateAsync();
+
         Task<PagedResultDto<CategoryDto>> GetListAsync(GetCategoryListDto input);
 
         Task<List<CategoryDto>> GetListParentAsync();

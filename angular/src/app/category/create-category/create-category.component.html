@@ -1,28 +1,99 @@
-<div class="row" *ngIf="isRouting">
-  <h4 class=" pull-left mx-3 text-center my-3">{{ (entityId ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h4>
-</div>
+<div class="container-fluid px-4">
+  <h1 class="mt-4" *ngIf="isRouting">{{ (entityId ? '::Sửa' : '::Thêm mới') | abpLocalization }}</h1>
 
-<form [formGroup]="form" (ngSubmit)="save()" *ngIf="form">
-  <div class="modal-body div-scroll">
-    <div class="form-group">
-      <label for="category-name">Danh mục cha</label><span> * </span>
-      <select class="form-control custom-select" formControlName="parentId">
-        <option selected value='null'>-------Danh mục cha--------</option>
-        <option *ngFor="let x of parentItems" [value]="x.code">{{x.code}}</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="category-code">Mã danh mục</label><span> * </span>
-      <input type="text" id="category-code" class="form-control" formControlName="code" autocomplete="off" />
-    </div>
 
-    <div class="form-group">
-      <label for="category-name">Tên danh mục</label><span> * </span>
-      <input type="text" id="category-name" class="form-control" formControlName="name" autocomplete="off"/>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="save()" *ngIf="form" skipValidation>
+        <div class="row mx-3">
+
+          <div class="col-sm-5 col-md-5 col-lg-5 form-group ">
+            <label for="category-code">Mã danh mục</label><span> * </span>
+            <div class=" input-group">
+              <input type="text" id="category-name" class="form-control" [readonly]="isReadonly" [(ngModel)]="strCode"
+                formControlName="code" autocomplete="off" placeholder="Nhập mã danh mục" style="width:70%" />
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input type="checkbox" id="code" aria-label="Checkbox for following text input" (change)="onSelect($event)">
+                  <label class="form-check-label" for="code">(auto)</label>
+                </div>
+              </div>
+
+            </div>
+            <label for="category-code">Chú thích</label><span> *: chỉ được phép nhập a-z,A-Z,0-9,-,_ </span><br />
+            <app-validate-message [entityForm]="form" fieldName="code" [validationMessages]="validation_messages">
+            </app-validate-message>
+          </div>
+          <div class=" col-sm-4 col-md-4 col-lg-4 form-group">
+            <label for="category-name">Danh mục cha</label><span> * </span>
+            <select class="form-control custom-select" formControlName="parentId" (click)="showSelect()" [(ngModel)]="strParent" *ngIf="!isShowSelect">
+                    <option selected value=''>----Danh mục cha----</option>
+                    <option *ngFor="let x of parentCategories" [value]="x.code">{{x.code}}</option>
+                  </select>
+            
+            <div *ngIf="isShowSelect">
+              <input type="text" id="category-name" class="form-control" formControlName="parentId" autocomplete="off"/>
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <tree-root [nodes]="parentItems" (activate)="onEvent($event)">
+                    <ng-template #treeNodeTemplate let-node let-index="index">
+                      <span>{{ node.data.code }}</span>
+                    </ng-template>
+                  </tree-root>
+                </div>
+            </div>
+              
+
+            </div>
+          </div>
+          <div class="col-sm-3 col-md-3 col-lg-3"></div>
+        </div>
+
+        <div class="row mx-3">
+          <nav style="width:50%;">
+            <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+              <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-vi" role="tab"
+                aria-controls="nav-home" aria-selected="true"><span class="flag-icon flag-icon-vn"> </span> VietNam</a>
+              <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-en" role="tab"
+                aria-controls="nav-profile" aria-selected="false"><span class="flag-icon flag-icon-us"> </span>
+                English</a>
+            </div>
+          </nav>
+          <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-vi" role="tabpanel" aria-labelledby="nav-profile-tab">
+              <div class="form-group my-2">
+                <label for="category-name">Tên danh mục</label><span> * </span>
+                <input type="text" id="category-name" class="form-control" formControlName="viName" autocomplete="off"
+                  placeholder="vietnamese name" style="width:67%" />
+              </div>
+
+            </div>
+            <div class="tab-pane fade" id="nav-en" role="tabpanel" aria-labelledby="nav-contact-tab">
+              <div class="form-group my-2">
+                <label for="category-name">Tên danh mục</label><span> * </span>
+                <input type="text" id="category-name" class="form-control" formControlName="enName" autocomplete="off"
+                  placeholder="English name" style="width:67%" />
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="row mx-3">
+          <div class="col-sm-3 col-md-3 col-lg-3">
+            <button class="btn btn-secondary text-right mx-5" (click)="goBackToList()" *ngIf="isRouting">
+              <i class="fa fa-arrow-left"></i>
+            </button>
+          </div>
+          <div class="col-sm-2 col-md-3 col-lg-2"></div>
+          <div class="col-sm-3 col-md-3 col-lg-3">
+            <button type="submit" class="btn btn-primary mx-3" [disabled]="form.invalid" style="float: right;"
+              *ngIf="isRouting">Lưu lại</button>
+          </div>
+
+        </div>
+
+      </form>
     </div>
   </div>
-  <button class="btn btn-secondary text-right mx-3" (click)="goBackToList()" *ngIf="isRouting">
-    <i class="fa fa-arrow-left"></i>
-  </button> 
-  <button type="submit" class="btn btn-primary mx-3" [disabled]="form.invalid" style="float: right;" *ngIf="isRouting">Lưu lại</button>
-</form>
+</div>

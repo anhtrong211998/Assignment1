@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { ThemeBasicModule } from '@abp/ng.theme.basic';
 import { ThemeSharedModule } from '@abp/ng.theme.shared';
 import { NgxValidateCoreModule } from '@ngx-validate/core';
+import { ValidateMessageModule } from './validate-message/validate-message.module';
 
 @NgModule({
   declarations: [],
@@ -19,7 +20,8 @@ import { NgxValidateCoreModule } from '@ngx-validate/core';
     ThemeSharedModule,
     ThemeBasicModule,
     NgbDropdownModule,
-    NgxValidateCoreModule
+    NgxValidateCoreModule,
+    ValidateMessageModule
   ],
   providers: []
 })

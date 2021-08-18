@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { CreateCategoryComponent } from './create-category/create-category.component';
 import { AppService } from '../shared/services/app.service';
+import { UtilitiesService } from '../shared/services/utilities.service';
 
 @Component({
   selector: 'app-category',
@@ -37,6 +38,8 @@ export class CategoryComponent implements OnInit {
 
   public parentCategories = [] as CategoryDto[];
 
+  public parentItems: any[] ;
+
   public checkedItems = [];
 
   public input = {} as GetCategoryListDto;
@@ -49,11 +52,15 @@ export class CategoryComponent implements OnInit {
 
   public formGrp: FormGroup;
 
+  public isShowSelect: boolean = false;
+
+  public strParent: string = '';
+
   @ViewChild(CreateCategoryComponent) createCategoryComp: CreateCategoryComponent;
 
   constructor(public readonly list: ListService<GetCategoryListDto>, private categoryService: CategoryService,
     private fb: FormBuilder, private confirmation: ConfirmationService, private router: Router,
-    private modalService: BsModalService, private appService: AppService) { }
+    private modalService: BsModalService, private appService: AppService,private utilitiesService: UtilitiesService) { }
 
   ngOnInit() {
     this.loadData()
@@ -66,6 +73,7 @@ export class CategoryComponent implements OnInit {
     const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
     this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
       this.category = response;
+      
     });
     this.getParents();
   }
@@ -80,9 +88,33 @@ export class CategoryComponent implements OnInit {
     this.input.parentId = '';
     this.categoryService.getListParent().subscribe((response) => {
       this.parentCategories = response
+      this.parentItems = this.utilitiesService.UnflatteringForTree(response);
     });
   }
 
+  showSelect() {
+    this.isShowSelect = true;
+  }
+
+  Select() {
+    this.strParent = '';
+    this.isShowSelect = false;
+    this.input.parentId = '';
+    this.loadData();
+  }
+  onEvent(e){
+    this.strParent = e.node.data.code;
+    this.isShowSelect = false;
+    this.input.parentId = this.strParent;
+    this.currentPage = 1;
+    this.input.maxResultCount = this.pageSize;
+    this.input.skipCount = (this.currentPage - 1) * this.pageSize;
+    const categroyStreamCreator = (query) => this.categoryService.getList({ ...query, ...this.input });
+    this.list.hookToQuery(categroyStreamCreator).subscribe((response) => {
+      this.category = response;
+      
+    });
+  }
   // add new method
   createNew() {
     this.isModalOpen = true;

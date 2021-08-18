@@ -11,6 +11,8 @@ namespace StudyRequrement.Categories
     {
         Task<Category> FindByCodeAsync(string code);
 
+        Task<Category> GetLastCodeAsync(string code);
+
         Task<List<Category>> GetListAsync(
             int skipCount,
             int maxResultCount,

@@ -13,7 +13,9 @@ namespace StudyRequrement.Categories
     {
         public string Code { get; set; }
 
-        public string Name { get; set; }
+        public string ViName { get; set; }
+
+        public string EnName { get; set; }
 
         public string ParentId { get; set; }
 
@@ -24,25 +26,37 @@ namespace StudyRequrement.Categories
         internal Category(
             Guid id,
             [NotNull] string code,
-            [NotNull] string name,
+            [CanBeNull] string viName,
+            [CanBeNull] string enName,
             [CanBeNull] string parentId = null)
             : base(id)
         {
             SetCode(code);
-            SetName(name);
+            //SetViName(viName);
+            //SetEnName(enName);
+            ViName = viName;
+            EnName = enName;
             ParentId = parentId;
         }
 
-        private void SetName([NotNull] string name)
-        {
-            Name = Check.NotNullOrWhiteSpace(
-                name,
-                nameof(name),
-                maxLength: 255
-            );
-        }
+        //private void SetViName([CanBeNull] string name)
+        //{
+        //    ViName = Check.NotNullOrWhiteSpace(
+        //        name,
+        //        nameof(name),
+        //        maxLength: 255
+        //    );
+        //}
 
-        private void SetCode([NotNull] string code)
+        //private void SetEnName([CanBeNull] string name)
+        //{
+        //    EnName = Check.Length(
+        //        name,
+        //        nameof(name),
+        //        maxLength: 255
+        //    );
+        //}
+        private void SetCode([CanBeNull] string code)
         {
             Code = Check.NotNullOrWhiteSpace(
                 code,

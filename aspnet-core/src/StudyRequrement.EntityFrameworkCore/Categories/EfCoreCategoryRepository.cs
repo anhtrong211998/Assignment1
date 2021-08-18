@@ -26,6 +26,12 @@ namespace StudyRequrement.Categories
             return await dbSet.FirstOrDefaultAsync(c => c.Code == code);
         }
 
+        public async Task<Category> GetLastCodeAsync(string code)
+        {
+            var dbSet = await GetDbSetAsync();
+            return await dbSet.Where(c => c.Code.Contains(code)).OrderByDescending(c => c.Code).FirstOrDefaultAsync();
+        }
+
         public async Task<List<Category>> GetListAsync(
             int skipCount,
             int maxResultCount,
@@ -37,7 +43,7 @@ namespace StudyRequrement.Categories
             return await dbSet
                 .WhereIf(
                     !filter.IsNullOrWhiteSpace(),
-                    c => c.Code.Contains(filter) || c.Name.Contains(filter)
+                    c => c.Code.Contains(filter) || c.ViName.Contains(filter) || c.EnName.Contains(filter)
                  )
                 .WhereIf(
                     !parentId.IsNullOrWhiteSpace(),
@@ -52,12 +58,11 @@ namespace StudyRequrement.Categories
         public async Task<List<Category>> GetListParentAsync()
         {
             var dbSet = await GetDbSetAsync();
-            var a = await dbSet
-                .Where(
-                    c => c.ParentId == null
-                 )
+            return  await dbSet
+                 //.Where(
+                 //   c => c.ParentId == null
+                 //)
                 .ToListAsync();
-            return a;
         }
     }
 }

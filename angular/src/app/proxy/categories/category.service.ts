@@ -39,6 +39,14 @@ export class CategoryService {
     },
     { apiName: this.apiName });
 
+  getCodeGenerate = () =>
+    this.restService.request<any, string>({
+      method: 'GET',
+      responseType: 'text',
+      url: '/api/app/category/code-generate',
+    },
+    { apiName: this.apiName });
+
   getList = (input: GetCategoryListDto) =>
     this.restService.request<any, PagedResultDto<CategoryDto>>({
       method: 'GET',
