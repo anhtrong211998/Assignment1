@@ -21,10 +21,6 @@ export class CreateCategoryComponent implements OnInit {
 
   public form: FormGroup;
 
-  public strCode: string = '';
-
-  public strParent: string = '';
-
   public isReadonly: boolean = false;
 
   @Input() isRouting: boolean = true;
@@ -84,11 +80,9 @@ validation_messages = {
 
   // add buildForm method
   buildForm() {
-    this.strCode = this.selectItem?.code ? this.selectItem?.code : '';
-    this.strParent = this.selectItem?.parentId  ? this.selectItem?.parentId  : '';
     this.form = this.fb.group({
-      'parentId': new FormControl(this.strParent),
-      'code': new FormControl(this.strCode, Validators.compose([
+      'parentId': new FormControl(this.selectItem?.parentId || ''),
+      'code': new FormControl(this.selectItem?.code || '', Validators.compose([
         Validators.required,
         Validators.maxLength(50),
         Validators.pattern('^[a-zA-Z0-9-_]+$')
@@ -137,13 +131,13 @@ validation_messages = {
     if (e.currentTarget.checked) {
       this.isReadonly = true;
       this.categoryService.getCodeGenerate().subscribe((response) => {
-        this.strCode = response
+        this.form.controls.code.setValue(response);
       });
 
     }
     else {
       this.isReadonly = false;
-      this.strCode = '';
+      this.form.controls.code.setValue('');
     }
   }
   
@@ -152,7 +146,7 @@ validation_messages = {
   }
 
   onEvent(e){
-    this.strParent = e.node.data.code;
+    this.form.controls.parentId.setValue(e.node.data.code);
     this.isShowSelect = false;
     
   }
